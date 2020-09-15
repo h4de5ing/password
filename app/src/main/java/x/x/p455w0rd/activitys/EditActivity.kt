@@ -2,36 +2,37 @@ package x.x.p455w0rd.activitys
 
 import android.os.Bundle
 import android.text.TextUtils
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_edit.*
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import x.x.p455w0rd.R
-import x.x.p455w0rd.db.Item
+import x.x.p455w0rd.app.App
+import x.x.p455w0rd.confirm
+import x.x.p455w0rd.db.PasswordItem
 import x.x.p455w0rd.eunms.PasswordType
 import x.x.p455w0rd.now
 
 class EditActivity : BaseBackActivity() {
     var isUpdate = false
     var mId = -1
+    var item: PasswordItem? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
         try {
             mId = intent.getIntExtra("id", -1)
-            transaction {
-                val item = Item.select { Item.id eq mId }
-                item?.apply {
-                    isUpdate = true
-                    title = getString(R.string.activity_edit)
-                    runOnUiThread {
-                        this.forEach {
-                            et_title.setText(it[Item.title])
-                            et_account.setText(it[Item.account])
-                            et_password.setText(it[Item.password])
-                            memo.setText(it[Item.memoInfo])
-                        }
+            println(mId)
+            if (mId > -1) {
+                isUpdate = true
+                val items = App.dao?.observerItemId(mId.toLong())
+                items?.apply {
+                    item = this.firstOrNull()
+                    item?.apply {
+                        et_title.setText(this.title)
+                        et_account.setText(this.account)
+                        et_password.setText(this.password)
+                        memo.setText(this.memoInfo)
                     }
                 }
             }
@@ -62,31 +63,60 @@ class EditActivity : BaseBackActivity() {
     }
 
     fun save(title: String, account: String, password: String, memo: String) {
-        transaction {
-            try {
-                if (isUpdate) {
-                    Item.update { item ->
-                        item[Item.id] = mId
-                        item[Item.type] = PasswordType.Normal.ordinal
-                        item[Item.title] = title
-                        item[Item.account] = account
-                        item[Item.password] = password
-                        item[Item.memoInfo] = memo
-                        item[Item.time] = now()
-                    }
-                } else {
-                    Item.insert { item ->
-                        item[Item.type] = PasswordType.Normal.ordinal
-                        item[Item.title] = title
-                        item[Item.account] = account
-                        item[Item.password] = password
-                        item[Item.memoInfo] = memo
-                        item[Item.time] = now()
+        try {
+            if (isUpdate) {
+                println("更新:$mId")
+                item?.apply {
+                    this.type = PasswordType.Normal.ordinal
+                    this.title = title
+                    this.account = account
+                    this.password = password
+                    this.memoInfo = memo
+                    this.time = now()
+                    App.dao?.update(this)
+                }
+            } else {
+                App.dao?.insert(
+                    PasswordItem(
+                        id = 0,
+                        type = PasswordType.Normal.ordinal,
+                        title = title,
+                        account = account,
+                        password = password,
+                        memoInfo = memo,
+                        time = now()
+                    )
+                )
+            }
+            runOnUiThread { finish() }
+        } catch (e: Exception) {
+            runOnUiThread {
+                Toast.makeText(
+                    this@EditActivity,
+                    "编辑异常${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            e.printStackTrace()
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.delete, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.delete -> {
+                confirm(this@EditActivity, "确定删除这条【重要密码】？") {
+                    this.item?.apply {
+                        App.dao?.delete(this)
+                        runOnUiThread { finish() }
                     }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
+        return super.onOptionsItemSelected(item)
     }
 }

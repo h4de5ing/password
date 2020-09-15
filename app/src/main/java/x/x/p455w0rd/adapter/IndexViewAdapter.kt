@@ -1,10 +1,11 @@
 package x.x.p455w0rd.adapter
 
+import android.text.TextUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import x.x.p455w0rd.R
 import x.x.p455w0rd.TimeUtils
-import x.x.p455w0rd.beans.PasswordItem
+import x.x.p455w0rd.db.PasswordItem
 
 class IndexViewAdapter(layoutRes: Int = R.layout.main_password_item) :
     BaseQuickAdapter<PasswordItem, BaseViewHolder>(layoutRes) {
@@ -13,5 +14,8 @@ class IndexViewAdapter(layoutRes: Int = R.layout.main_password_item) :
         holder.setText(R.id.main_item_name, item.account)
         holder.setText(R.id.main_item_password, item.password)
         holder.setText(R.id.main_item_date, TimeUtils.getConciseTime(item.time, context))
+        if (!TextUtils.isEmpty(item.memoInfo)) {
+            holder.setText(R.id.memoInfo, item.memoInfo)
+        }
     }
 }

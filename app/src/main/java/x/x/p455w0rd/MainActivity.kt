@@ -2,16 +2,18 @@ package x.x.p455w0rd
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import x.x.p455w0rd.activitys.BaseMaskActivity
 import x.x.p455w0rd.activitys.EditActivity
 import x.x.p455w0rd.adapter.IndexViewAdapter
-import x.x.p455w0rd.beans.PasswordItem
-import x.x.p455w0rd.db.Item
+import x.x.p455w0rd.app.App
+import x.x.p455w0rd.db.PasswordItem
+import java.io.File
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseMaskActivity() {
     val indexAdapter = IndexViewAdapter()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,43 +23,92 @@ class MainActivity : AppCompatActivity() {
             startActivity(
                 Intent(this, EditActivity::class.java).putExtra(
                     "id",
-                    indexAdapter.data[position].id
+                    indexAdapter.data[position].id.toInt()
+                )
+            )
+            println(indexAdapter.data[position])
+        }
+        fab.setOnClickListener {
+            startActivity(
+                Intent(this, EditActivity::class.java).putExtra(
+                    "id",
+                    -1
                 )
             )
         }
-        fab.setOnClickListener { startActivity(Intent(this, EditActivity::class.java)) }
+        App.dao?.observerPasswordItem()?.observe(this) {
+            it.forEach { println(it) }
+            indexAdapter.setNewInstance(it)
+            indexAdapter.notifyDataSetChanged()
+        }
+        tv_mask.setOnClickListener { showFingerPrintDialog(initCipher()) }
+        showFingerPrintDialog(initCipher())
     }
 
-    override fun onResume() {
-        super.onResume()
-        loadAllData()
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return super.onCreateOptionsMenu(menu)
     }
 
-    private fun loadAllData() {
-        transaction {
-            try {
-                val adapterList = mutableListOf<PasswordItem>()
-                val lists = Item.selectAll()
-                lists.forEach {
-                    adapterList.add(
-                        PasswordItem(
-                            it[Item.id],
-                            it[Item.type],
-                            it[Item.title],
-                            it[Item.account],
-                            it[Item.password],
-                            it[Item.memoInfo],
-                            it[Item.time]
-                        )
-                    )
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.`in` -> in_()
+            R.id.out -> out()
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    fun in_() {
+        select_file(this, object : DialogSelection {
+            override fun onSelectedFilePaths(files: Array<String?>?) {
+                try {
+                    files?.apply {
+                        val path = this[0]
+                        val file = File(path)
+                        if (file.isFile && file.exists()) {
+                            val list = csv4File(path!!)
+                            val passItems = mutableListOf<PasswordItem>()
+                            list.forEach {
+                                passItems.add(
+                                    PasswordItem(
+                                        it[0].toLong(),
+                                        it[1].toInt(),
+                                        it[2],
+                                        it[3],
+                                        it[4],
+                                        it[5],
+                                        it[6].toLong()
+                                    )
+                                )
+                            }
+                            App.dao?.insert(*passItems.toTypedArray())
+                        }
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(this@MainActivity, "导入失败${e.message}", Toast.LENGTH_LONG).show()
+                    e.printStackTrace()
                 }
-                runOnUiThread {
-                    indexAdapter.setNewInstance(adapterList)
-                    indexAdapter.notifyDataSetChanged()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            }
+        })
+    }
+
+    fun out() {
+        val items = App.dao?.output()
+        val list = mutableListOf<Array<String>>()
+        items?.apply {
+            this.forEach {
+                val array = arrayOf(
+                    "${it.id}",
+                    "${it.type}",
+                    it.title,
+                    it.account,
+                    it.password,
+                    it.memoInfo,
+                    "${it.time}"
+                )
+                list.add(array)
             }
         }
+        csv2File("${App.application?.obbDir?.absolutePath}/password.csv", list)
     }
 }
