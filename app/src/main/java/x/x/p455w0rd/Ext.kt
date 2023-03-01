@@ -8,7 +8,6 @@ import au.com.bytecode.opencsv.CSVWriter
 import com.github.angads25.filepicker.model.DialogConfigs
 import com.github.angads25.filepicker.model.DialogProperties
 import com.github.angads25.filepicker.view.FilePickerDialog
-import x.x.p455w0rd.app.App
 import java.io.*
 
 
@@ -55,7 +54,7 @@ fun select_file(context: Context, dialogSelection: DialogSelection) {
     dialog.setDialogSelectionListener { files -> dialogSelection.onSelectedFilePaths(files) }
 }
 
-fun confirm(context: Context,title: String, block: () -> Unit) {
+fun confirm(context: Context, title: String, block: () -> Unit) {
     val build = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
     build.setTitle(title)
     build.setPositiveButton(android.R.string.ok) { _, _ ->

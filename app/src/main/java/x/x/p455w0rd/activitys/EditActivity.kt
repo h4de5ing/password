@@ -5,10 +5,10 @@ import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_edit.*
 import x.x.p455w0rd.R
 import x.x.p455w0rd.app.App
 import x.x.p455w0rd.confirm
+import x.x.p455w0rd.databinding.ActivityEditBinding
 import x.x.p455w0rd.db.PasswordItem
 import x.x.p455w0rd.eunms.PasswordType
 import x.x.p455w0rd.now
@@ -17,9 +17,11 @@ class EditActivity : BaseBackActivity() {
     var isUpdate = false
     var mId = -1
     var item: PasswordItem? = null
+    private lateinit var binding: ActivityEditBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_edit)
+        binding = ActivityEditBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         try {
             mId = intent.getIntExtra("id", -1)
             println(mId)
@@ -29,40 +31,40 @@ class EditActivity : BaseBackActivity() {
                 items?.apply {
                     item = this.firstOrNull()
                     item?.apply {
-                        et_title.setText(this.title)
-                        et_account.setText(this.account)
-                        et_password.setText(this.password)
-                        memo.setText(this.memoInfo)
+                        binding.etTitle.setText(this.title)
+                        binding.etAccount.setText(this.account)
+                        binding.etPassword.setText(this.password)
+                        binding.memo.setText(this.memoInfo)
                     }
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
-        btn_save.setOnClickListener {
-            val title = et_title.text.toString()
-            val account = et_account.text.toString()
-            val password = et_password.text.toString()
-            val memo = memo.text.toString()
+        binding.btnSave.setOnClickListener {
+            val title = binding.etTitle.text.toString()
+            val account = binding.etAccount.text.toString()
+            val password = binding.etPassword.text.toString()
+            val memo = binding.memo.text.toString()
             if (!TextUtils.isEmpty(title)) {
                 if (!TextUtils.isEmpty(account)) {
                     if (!TextUtils.isEmpty(password)) {
                         save(title, account, password, memo)
                     } else {
-                        et_password.requestFocus()
-                        et_password.error = "请输入账号信息"
+                        binding.etPassword.requestFocus()
+                        binding.etPassword.error = "请输入账号信息"
                     }
                 } else {
-                    et_account.requestFocus()
-                    et_account.error = "请输入账号信息"
+                    binding.etAccount.requestFocus()
+                    binding.etAccount.error = "请输入账号信息"
                 }
             } else {
-                et_title.requestFocus()
-                et_title.error = "输入标题以便方便查找密码归属"
+                binding.etTitle.requestFocus()
+                binding.etTitle.error = "输入标题以便方便查找密码归属"
             }
         }
     }
 
-    fun save(title: String, account: String, password: String, memo: String) {
+    private fun save(title: String, account: String, password: String, memo: String) {
         try {
             if (isUpdate) {
                 println("更新:$mId")

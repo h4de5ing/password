@@ -1,30 +1,27 @@
 package x.x.p455w0rd
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.biometric.BiometricPrompt
-import androidx.core.content.ContextCompat
-import androidx.core.os.CancellationSignal
-import kotlinx.android.synthetic.main.activity_main.*
 import x.x.p455w0rd.activitys.EditActivity
 import x.x.p455w0rd.adapter.IndexViewAdapter
 import x.x.p455w0rd.app.App
+import x.x.p455w0rd.databinding.ActivityMainBinding
 import x.x.p455w0rd.db.PasswordItem
 import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
-    val indexAdapter = IndexViewAdapter()
+    private lateinit var binding: ActivityMainBinding
+    private val indexAdapter = IndexViewAdapter()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        password_list.adapter = indexAdapter
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.passwordList.adapter = indexAdapter
         indexAdapter.setOnItemClickListener { _, _, position ->
             startActivity(
                 Intent(this, EditActivity::class.java).putExtra(
@@ -34,7 +31,7 @@ class MainActivity : AppCompatActivity() {
             )
             println(indexAdapter.data[position])
         }
-        fab.setOnClickListener {
+        binding.fab.setOnClickListener {
             startActivity(
                 Intent(this, EditActivity::class.java).putExtra(
                     "id",
@@ -43,9 +40,7 @@ class MainActivity : AppCompatActivity() {
             )
         }
         App.dao?.observerPasswordItem()?.observe(this) {
-            it.forEach { println(it) }
             indexAdapter.setNewInstance(it)
-            indexAdapter.notifyDataSetChanged()
         }
     }
 
@@ -62,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    fun in_() {
+    private fun in_() {
         select_file(this, object : DialogSelection {
             override fun onSelectedFilePaths(files: Array<String?>?) {
                 try {
@@ -96,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    fun out() {
+    private fun out() {
         val items = App.dao?.output()
         val list = mutableListOf<Array<String>>()
         items?.apply {
