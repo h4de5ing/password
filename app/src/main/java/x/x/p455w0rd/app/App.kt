@@ -7,8 +7,8 @@ import x.x.p455w0rd.db.RoomDao
 
 class App : Application() {
     companion object {
-        var application: Context? = null
-        var dao: RoomDao? = null
+        lateinit var application: Context
+        lateinit var dao: RoomDao
     }
 
     override fun onCreate() {

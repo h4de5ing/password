@@ -1,4 +1,4 @@
-package x.x.p455w0rd.activitys
+package x.x.p455w0rd.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

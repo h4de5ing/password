@@ -26,5 +26,10 @@
       <option name="name" value="maven" />
       <option name="url" value="https://jitpack.io" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven2" />
+      <option name="name" value="maven2" />
+      <option name="url" value="https://gitee.com/lex1992/repository/raw/master/repository" />
+    </remote-repository>
   </component>
 </project>

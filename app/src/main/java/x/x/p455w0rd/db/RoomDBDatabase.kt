@@ -17,12 +17,9 @@ abstract class RoomDBDatabase : RoomDatabase() {
         }
 
         private fun buildDatabase(context: Context) =
-            Room.databaseBuilder(
-                context.applicationContext,
-                RoomDBDatabase::class.java,
-                "data.db"
-            ).allowMainThreadQueries()
-                .fallbackToDestructiveMigration()//会清空数据
+            Room.databaseBuilder(context.applicationContext, RoomDBDatabase::class.java, "data.db")
+                .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
                 .build()
 
     }

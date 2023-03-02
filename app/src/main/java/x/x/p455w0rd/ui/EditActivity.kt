@@ -1,4 +1,4 @@
-package x.x.p455w0rd.activitys
+package x.x.p455w0rd.ui
 
 import android.os.Bundle
 import android.text.TextUtils
@@ -24,7 +24,6 @@ class EditActivity : BaseBackActivity() {
         setContentView(binding.root)
         try {
             mId = intent.getIntExtra("id", -1)
-            println(mId)
             if (mId > -1) {
                 isUpdate = true
                 val items = App.dao?.observerItemId(mId.toLong())
@@ -37,6 +36,9 @@ class EditActivity : BaseBackActivity() {
                         binding.memo.setText(this.memoInfo)
                     }
                 }
+                title = "编辑"
+            } else {
+                title = "新建"
             }
         } catch (_: Exception) {
         }
@@ -67,7 +69,6 @@ class EditActivity : BaseBackActivity() {
     private fun save(title: String, account: String, password: String, memo: String) {
         try {
             if (isUpdate) {
-                println("更新:$mId")
                 item?.apply {
                     this.type = PasswordType.Normal.ordinal
                     this.title = title

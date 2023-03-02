@@ -1,13 +1,9 @@
 package x.x.p455w0rd
 
 import android.content.Context
-import android.os.Environment
 import androidx.appcompat.app.AlertDialog
 import au.com.bytecode.opencsv.CSVReader
 import au.com.bytecode.opencsv.CSVWriter
-import com.github.angads25.filepicker.model.DialogConfigs
-import com.github.angads25.filepicker.model.DialogProperties
-import com.github.angads25.filepicker.view.FilePickerDialog
 import java.io.*
 
 
@@ -35,31 +31,30 @@ fun csv2File(filename: String, mutableList: MutableList<Array<String>>) {
     csvWriter.close()
 }
 
-interface DialogSelection {
-    fun onSelectedFilePaths(files: Array<String?>?)
-}
-
-fun select_file(context: Context, dialogSelection: DialogSelection) {
-    val default_dir: String = Environment.getExternalStorageDirectory().absolutePath
-    val properties = DialogProperties()
-    properties.selection_mode = DialogConfigs.SINGLE_MODE
-    properties.selection_type = DialogConfigs.FILE_SELECT
-    properties.root = File(default_dir)
-    properties.error_dir = File(default_dir)
-    properties.offset = File(default_dir)
-    properties.extensions = null
-    val dialog = FilePickerDialog(context, properties)
-    dialog.setTitle("select file path")
-    dialog.show()
-    dialog.setDialogSelectionListener { files -> dialogSelection.onSelectedFilePaths(files) }
-}
+//interface DialogSelection {
+//    fun onSelectedFilePaths(files: Array<String?>?)
+//}
+//
+//fun selectFile(context: Context, dialogSelection: DialogSelection) {
+//    val defaultDir: String = Environment.getExternalStorageDirectory().absolutePath
+//    val properties = DialogProperties()
+//    properties.selection_mode = DialogConfigs.SINGLE_MODE
+//    properties.selection_type = DialogConfigs.FILE_SELECT
+//    properties.root = File(defaultDir)
+//    properties.error_dir = File(defaultDir)
+//    properties.offset = File(defaultDir)
+//    properties.extensions = null
+//    properties.isNeedFileName = true
+//    val dialog = FilePickerDialog(context, properties)
+//    dialog.setTitle("select file path")
+//    dialog.show()
+//    dialog.setDialogSelectionListener { files -> dialogSelection.onSelectedFilePaths(files) }
+//}
 
 fun confirm(context: Context, title: String, block: () -> Unit) {
-    val build = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
+    val build = AlertDialog.Builder(context, R.style.Theme_MaterialComponents_Light_Dialog)
     build.setTitle(title)
-    build.setPositiveButton(android.R.string.ok) { _, _ ->
-        block()
-    }
+    build.setPositiveButton(android.R.string.ok) { _, _ -> block() }
     build.setNegativeButton(android.R.string.cancel, null)
     val alert = build.create()
     alert.show()

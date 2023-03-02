@@ -1,24 +1,39 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+}
 android {
-    compileSdkVersion 33
-
+    compileSdk 33
+    namespace "x.x.p455w0rd"
     defaultConfig {
         applicationId "x.x.p455w0rd"
-        minSdkVersion 23
-        targetSdkVersion 33
+        minSdk 24
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
-
+    signingConfigs {
+        sign {
+            storeFile file("../hello_android.jks")
+            storePassword('android')
+            keyAlias('android')
+            keyPassword('android')
+        }
+    }
     buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.sign
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.sign
         }
     }
     viewBinding { enabled = true }
@@ -26,18 +41,17 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.7'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation "androidx.room:room-runtime:2.5.0"
     kapt "androidx.room:room-compiler:2.5.0"
-//    implementation "androidx.room:room-ktx:2.5.0"
-//    implementation "android.arch.persistence.room:runtime:2.2.5"
     implementation 'com.github.greengerong:opencsv.utils:1.2'//TODO 移除，导出为json
-    implementation 'com.github.angads25:filepicker:1.1.1'
-    implementation 'androidx.biometric:biometric:1.0.1'
+    implementation 'com.github.getActivity:XXPermissions:16.8'
+    implementation 'com.github.h4de5ing.filepicker:filepicker:1.0-20230302'
+    implementation 'androidx.biometric:biometric:1.1.0'
 }
