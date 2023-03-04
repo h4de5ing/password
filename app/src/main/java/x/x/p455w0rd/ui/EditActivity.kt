@@ -26,15 +26,13 @@ class EditActivity : BaseBackActivity() {
             mId = intent.getIntExtra("id", -1)
             if (mId > -1) {
                 isUpdate = true
-                val items = App.dao?.observerItemId(mId.toLong())
-                items?.apply {
-                    item = this.firstOrNull()
-                    item?.apply {
-                        binding.etTitle.setText(this.title)
-                        binding.etAccount.setText(this.account)
-                        binding.etPassword.setText(this.password)
-                        binding.memo.setText(this.memoInfo)
-                    }
+                val items = App.dao.observerItemId(mId.toLong())
+                item = items.firstOrNull()
+                item?.apply {
+                    binding.etTitle.setText(this.title)
+                    binding.etAccount.setText(this.account)
+                    binding.etPassword.setText(this.password)
+                    binding.memo.setText(this.memoInfo)
                 }
                 title = "编辑"
             } else {
@@ -76,10 +74,10 @@ class EditActivity : BaseBackActivity() {
                     this.password = password
                     this.memoInfo = memo
                     this.time = now()
-                    App.dao?.update(this)
+                    App.dao.update(this)
                 }
             } else {
-                App.dao?.insert(
+                App.dao.insert(
                     PasswordItem(
                         id = 0,
                         type = PasswordType.Normal.ordinal,
@@ -105,7 +103,7 @@ class EditActivity : BaseBackActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.delete, menu)
+        if (mId > -1) menuInflater.inflate(R.menu.delete, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -114,7 +112,7 @@ class EditActivity : BaseBackActivity() {
             R.id.delete -> {
                 confirm(this@EditActivity, "确定删除这条【重要密码】？") {
                     this.item?.apply {
-                        App.dao?.delete(this)
+                        App.dao.delete(this)
                         runOnUiThread { finish() }
                     }
                 }
