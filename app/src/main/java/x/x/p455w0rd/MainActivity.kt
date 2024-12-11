@@ -1,5 +1,7 @@
 package x.x.p455w0rd
 
+import android.annotation.SuppressLint
+import android.app.KeyguardManager
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import com.github.h4de5ing.filepicker.DialogUtils
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.Permission
@@ -55,15 +58,12 @@ class MainActivity : AppCompatActivity() {
                         toast("获取部分权限成功，但部分权限未正常授予")
                         return
                     }
-                    toast("获取文件读写权限成功")
                 }
 
                 override fun onDenied(permissions: MutableList<String>, doNotAskAgain: Boolean) {
                     if (doNotAskAgain) {
                         toast("被永久拒绝授权，请手动授予文件读写权限")
                         XXPermissions.startPermissionActivity(this@MainActivity, permissions)
-                    } else {
-                        toast("获取文件读写历权限失败")
                     }
                 }
             })
@@ -146,30 +146,51 @@ class MainActivity : AppCompatActivity() {
     private var mBiometricPrompt: BiometricPrompt? = null
     private val TAG = "gh0st"
     private fun initFP() {
-        val executor = ContextCompat.getMainExecutor(this)
-        mBiometricPrompt =
-            BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    Log.e(TAG, "onAuthenticationError $errorCode $errString")
-                    binding.masked.visibility = View.VISIBLE
-                }
+        if (isSupport()) {
+            val executor = ContextCompat.getMainExecutor(this)
+            mBiometricPrompt =
+                BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        Log.e(TAG, "onAuthenticationError $errorCode $errString")
+                        binding.masked.visibility = View.VISIBLE
+                    }
 
-                override fun onAuthenticationFailed() {
-                    Log.e(TAG, "onAuthenticationFailed")
-                    binding.masked.visibility = View.VISIBLE
-                }
+                    override fun onAuthenticationFailed() {
+                        Log.e(TAG, "onAuthenticationFailed")
+                        binding.masked.visibility = View.VISIBLE
+                    }
 
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    Log.e(TAG, "onAuthenticationSucceeded")
-                    binding.masked.visibility = View.GONE
-                }
-            })
-        val prompt = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("指纹验证")
-            .setDescription("显示描述")
-            .setSubtitle("请手指触碰指纹传感器")
-            .setNegativeButtonText("使用密码登录")
-            .build()
-        mBiometricPrompt?.authenticate(prompt)
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        Log.e(TAG, "onAuthenticationSucceeded")
+                        binding.masked.visibility = View.GONE
+                    }
+                })
+            val prompt = BiometricPrompt.PromptInfo.Builder()
+                .setTitle("指纹验证")
+                .setDescription("显示描述")
+                .setSubtitle("请手指触碰指纹传感器")
+                .setNegativeButtonText("使用密码登录")
+                .build()
+            mBiometricPrompt?.authenticate(prompt)
+        } else {
+            binding.masked.visibility = View.GONE
+        }
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun isSupport(): Boolean {
+        val keyguardManager = getSystemService(KeyguardManager::class.java)
+        val managerCompat = FingerprintManagerCompat.from(this)
+        if (!managerCompat.isHardwareDetected) {
+            binding.tvMask.text = "系统不支持指纹功能"
+            return false
+        } else if (!keyguardManager.isKeyguardSecure) {
+            binding.tvMask.text = "屏幕未设置锁屏 请先设置锁屏并添加一个指纹"
+            return false
+        } else if (!managerCompat.hasEnrolledFingerprints()) {
+            binding.tvMask.text = "至少在系统中添加一个指纹"
+            return false
+        }
+        return true
     }
 }
