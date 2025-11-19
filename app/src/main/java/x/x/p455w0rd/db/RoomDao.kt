@@ -1,12 +1,16 @@
 package x.x.p455w0rd.db
 
-import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RoomDao {
     @Query("SELECT * FROM password order by id")
-    fun observerPasswordItem(): LiveData<MutableList<PasswordItem>>
+    fun observerPasswordItem(): Flow<List<PasswordItem>>
 
     @Query("SELECT * FROM password order by id")
     fun output(): List<PasswordItem>

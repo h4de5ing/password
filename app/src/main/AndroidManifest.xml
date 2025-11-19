@@ -11,12 +11,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <!-- 告知 XXPermissions 当前项目已经适配了分区存储特性 -->
-        <meta-data
-            android:name="ScopedStorage"
-            android:value="true" />
-
+        android:theme="@style/Theme.AppTheme">
         <activity
             android:name=".MainActivity2"
             android:exported="true">
@@ -26,6 +21,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.EditActivity" />
     </application>
 </manifest>

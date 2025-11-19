@@ -13,5 +13,5 @@ data class PasswordItem(
     var account: String,
     var password: String,
     var memoInfo: String,
-    var time: Long
+    var time: Long= System.currentTimeMillis()
 )
