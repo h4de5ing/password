@@ -50,16 +50,6 @@ android {
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
-    implementation("androidx.multidex:multidex:2.0.1")
-    implementation("com.google.android.material:material:1.13.0")
-    implementation("com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.8")
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("com.github.greengerong:opencsv.utils:1.2")
-    implementation("com.github.getActivity:XXPermissions:16.8")
-    implementation("com.github.h4de5ing.filepicker:filepicker:1.0-20230411")
-    implementation("androidx.biometric:biometric:1.1.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -71,6 +61,7 @@ dependencies {
     implementation(libs.material.icons.extended)
 
     implementation(libs.androidx.activity)
+    implementation(libs.kotlinx.serialization.json)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

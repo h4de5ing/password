@@ -97,8 +97,31 @@ fun MainUI() {
     if (showAddDialog) {
         AddPasswordDialog(
             onDismiss = { showAddDialog = false },
-            onConfirm = { title, username, password, website, notes ->
-                dao.insert(PasswordItem(0, 0, title, username, password, "$notes"))
-            })
+            onConfirm = { type, title, dataMap, memo ->
+                // 根据类型提取account字段
+                val account = when (type) {
+                    1 -> dataMap["用户名"] ?: ""  // PASSWORD
+                    2 -> dataMap["网站"] ?: ""     // GOOGLE_AUTH
+                    3 -> dataMap["word_1"] ?: ""   // MNEMONIC (第一个助记词)
+                    4 -> dataMap["卡号"] ?: ""     // BANK_CARD
+                    5 -> dataMap["姓名"] ?: ""     // ID_CARD
+                    else -> ""
+                }
+                
+                dao.insert(
+                    PasswordItem(
+                        id = 0,
+                        type = type,
+                        title = title,
+                        account = account,
+                        password = dataMap["密码"] ?: "",
+                        memoInfo = memo,
+                        dataJson = "" // 将在setDataMap时设置
+                    ).apply {
+                        setDataMap(dataMap)
+                    }
+                )
+            }
+        )
     }
 }
