@@ -1,6 +1,9 @@
 package x.x.p455w0rd.ui.compose
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,16 +12,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -29,8 +39,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import x.x.p455w0rd.TimeUtils
+import androidx.compose.ui.unit.sp
+import x.x.p455w0rd.getConciseTime
 import x.x.p455w0rd.db.PasswordItem
 import x.x.p455w0rd.db.PasswordType
 
@@ -45,6 +57,20 @@ fun PasswordItemCard(
     val passwordType = passwordItem.getPasswordType()
     val dataMap = passwordItem.getDataMap()
     var showSensitiveInfo by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        DeleteConfirmDialog(
+            title = passwordItem.title,
+            onConfirm = {
+                showDeleteDialog = false
+                onDelete(passwordItem)
+            },
+            onDismiss = {
+                showDeleteDialog = false
+            }
+        )
+    }
 
     Card(
         modifier = modifier
@@ -138,12 +164,12 @@ fun PasswordItemCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = TimeUtils.getConciseTime(passwordItem.time, context),
+                    text = passwordItem.time.getConciseTime(context),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
                 IconButton(
-                    onClick = { onDelete(passwordItem) },
+                    onClick = { showDeleteDialog = true },
                     modifier = Modifier.size(24.dp)
                 ) {
                     Icon(
@@ -214,8 +240,8 @@ private fun DisplayPasswordInfo(
 @Composable
 private fun DisplayGoogleAuthInfo(
     dataMap: Map<String, String>,
-    showSecret: Boolean,
-    onShowSecretChange: (Boolean) -> Unit
+    showSecret: Boolean = false,
+    onShowSecretChange: (Boolean) -> Unit = {}
 ) {
     var totpCode by remember { mutableStateOf("000000") }
     var countdownSeconds by remember { mutableIntStateOf(30) }
@@ -228,7 +254,6 @@ private fun DisplayGoogleAuthInfo(
 //    }
 
     val website = dataMap["网站"] ?: ""
-    val recoveryCode = dataMap["恢复代码"] ?: ""
 
     if (website.isNotEmpty()) {
         Text(
@@ -261,67 +286,117 @@ private fun DisplayGoogleAuthInfo(
             style = MaterialTheme.typography.bodySmall
         )
     }
-    Spacer(modifier = Modifier.height(4.dp))
-
-    if (recoveryCode.isNotEmpty()) {
-        Text(
-            text = "恢复代码: ${recoveryCode.take(20)}...",
-            style = MaterialTheme.typography.bodySmall
-        )
-    }
 }
 
 @Composable
 private fun DisplayMnemonicInfo(
     dataMap: Map<String, String>,
-    showMnemonic: Boolean,
-    onShowMnemonicChange: (Boolean) -> Unit
+    showMnemonic: Boolean = false,
+    onShowMnemonicChange: (Boolean) -> Unit = {}
 ) {
-    var showMnemonicExpanded by remember { mutableStateOf(false) }
+    var showWords by remember { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(false) }
 
     // 计数有多少个单词
     val wordCount = (1..24).count { dataMap["word_$it"]?.isNotEmpty() == true }
 
-    Text(
-        text = "助记词: ${wordCount}个单词${if (wordCount == 12) " (12字)" else if (wordCount == 24) " (24字)" else ""}",
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = FontWeight.SemiBold
-    )
-    Spacer(modifier = Modifier.height(4.dp))
-
-    if (showMnemonicExpanded) {
-        // 显示所有单词
-        for (i in 1..wordCount) {
-            val word = dataMap["word_$i"] ?: ""
-            if (word.isNotEmpty()) {
-                Text(
-                    text = "$i. $word",
-                    style = MaterialTheme.typography.bodySmall
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "助记词: ${wordCount}个单词${if (wordCount == 12) " (12字)" else if (wordCount == 24) " (24字)" else ""}",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.weight(1f)
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            // 显示/隐藏单词图标
+            IconButton(
+                onClick = { showWords = !showWords },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = if (showWords) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                    contentDescription = if (showWords) "隐藏单词" else "显示单词",
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            
+            // 展开/折叠矩阵图标
+            IconButton(
+                onClick = { isExpanded = !isExpanded },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    contentDescription = if (isExpanded) "折叠矩阵" else "展开矩阵",
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "点击收起",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.fillMaxWidth()
-        )
-    } else {
-        // 显示前几个单词作为预览
-        val previewWords = (1..3).mapNotNull { dataMap["word_$it"]?.takeIf { it.isNotEmpty() } }
-        Text(
-            text = previewWords.joinToString(", ") + if (wordCount > 3) "..." else "",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "点击展开",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.fillMaxWidth()
-        )
+    }
+
+    // 只在展开状态下显示矩阵
+    if (isExpanded) {
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 矩阵显示单词：12个单词显示为3X4，24个单词显示为3X8
+        val columnsCount = 3
+        val rowsCount = (wordCount + columnsCount - 1) / columnsCount
+        
+        for (row in 0 until rowsCount) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                for (col in 0 until columnsCount) {
+                    val index = row * columnsCount + col + 1
+                    val word = if (index <= wordCount) dataMap["word_$index"] ?: "" else ""
+                    
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                            .padding(8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (word.isNotEmpty()) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = index.toString(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                // 显示单词或星号
+                                Text(
+                                    text = if (showWords) word else "●",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+        }
     }
 }
 
@@ -475,4 +550,36 @@ private fun DisplayIdCardInfo(
             style = MaterialTheme.typography.bodyMedium
         )
     }
+}
+
+@Composable
+private fun DeleteConfirmDialog(
+    title: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text("确认删除")
+        },
+        text = {
+            Text("确定要删除 \"$title\" 吗？此操作无法撤销。")
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("删除")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消")
+            }
+        }
+    )
 }

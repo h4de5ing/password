@@ -40,8 +40,7 @@ fun MainUI() {
         CenterAlignedTopAppBar(title = { Text("密码本") })
     }, floatingActionButton = {
         FloatingActionButton(
-            onClick = { showAddDialog = true },
-            containerColor = MaterialTheme.colorScheme.primary
+            onClick = { showAddDialog = true }, containerColor = MaterialTheme.colorScheme.primary
         ) {
             Icon(
                 imageVector = Icons.Default.Add, contentDescription = "添加密码"
@@ -84,10 +83,11 @@ fun MainUI() {
                     .padding(paddingValues)
             ) {
                 items(passwordList.size) {
+                    val item = passwordList[it]
                     PasswordItemCard(
-                        passwordItem = passwordList[it],
+                        passwordItem = item,
                         onItemClick = {},
-                        onDelete = {},
+                        onDelete = { dao.delete(item) },
                     )
                 }
             }
@@ -107,7 +107,6 @@ fun MainUI() {
                     5 -> dataMap["姓名"] ?: ""     // ID_CARD
                     else -> ""
                 }
-                
                 dao.insert(
                     PasswordItem(
                         id = 0,
@@ -119,9 +118,7 @@ fun MainUI() {
                         dataJson = "" // 将在setDataMap时设置
                     ).apply {
                         setDataMap(dataMap)
-                    }
-                )
-            }
-        )
+                    })
+            })
     }
 }
