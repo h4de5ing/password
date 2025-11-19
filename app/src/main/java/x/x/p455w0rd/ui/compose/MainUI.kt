@@ -88,7 +88,6 @@ fun MainUI() {
                         passwordItem = passwordList[it],
                         onItemClick = {},
                         onDelete = {},
-                        ""
                     )
                 }
             }

@@ -26,9 +26,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import x.x.p455w0rd.TimeUtils
 import x.x.p455w0rd.db.PasswordItem
 
 @Composable
@@ -36,11 +37,10 @@ fun PasswordItemCard(
     passwordItem: PasswordItem,
     onItemClick: (PasswordItem) -> Unit,
     onDelete: (PasswordItem) -> Unit,
-    encryptionKey: String,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     var showPassword by remember { mutableStateOf(false) }
-
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -62,37 +62,26 @@ fun PasswordItemCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                IconButton(
-                    onClick = { onDelete(passwordItem) },
-                    modifier = Modifier.size(24.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "删除"
-                    )
-                }
             }
-
             Spacer(modifier = Modifier.height(8.dp))
-
             Text(
                 text = "用户名: ${passwordItem.account}",
                 style = MaterialTheme.typography.bodyMedium
             )
-
             Spacer(modifier = Modifier.height(4.dp))
-
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "密码:${passwordItem.password}",
+                    text = "密码: ${
+                        if (showPassword) passwordItem.password
+                        else "•".repeat(passwordItem.password.length)
+                    }",
                     style = MaterialTheme.typography.bodyMedium,
-                    fontFamily = if (showPassword) FontFamily.Default else FontFamily.Monospace
                 )
-
                 Spacer(modifier = Modifier.width(8.dp))
-
                 IconButton(
                     onClick = { showPassword = !showPassword },
                     modifier = Modifier.size(20.dp)
@@ -103,6 +92,17 @@ fun PasswordItemCard(
                         contentDescription = if (showPassword) "隐藏密码" else "显示密码"
                     )
                 }
+            }
+            Text("备注:${passwordItem.memoInfo}")
+            Text("${TimeUtils.getConciseTime(passwordItem.time, context)}")
+            IconButton(
+                onClick = { onDelete(passwordItem) },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "删除"
+                )
             }
         }
     }
