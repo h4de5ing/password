@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
             indexAdapter.setNewInstance(it)
         }
         binding.masked.setOnClickListener { initFP() }
-//        binding.masked.visibility = View.GONE
         XXPermissions.with(this)
             .permission(Permission.WRITE_EXTERNAL_STORAGE)
             .request(object : OnPermissionCallback {
