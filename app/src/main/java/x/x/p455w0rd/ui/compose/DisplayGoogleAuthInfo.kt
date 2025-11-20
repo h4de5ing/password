@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,8 +54,7 @@ fun DisplayGoogleAuthInfo(dataMap: Map<String, String>) {
 
     if (website.isNotEmpty()) {
         Text(
-            text = "网站: $website",
-            style = MaterialTheme.typography.bodyMedium
+            text = "网站: $website", style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(4.dp))
     }
@@ -65,12 +65,7 @@ fun DisplayGoogleAuthInfo(dataMap: Map<String, String>) {
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column {
-            Text(
-                text = "验证码",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
+        Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = totpCode,
@@ -85,8 +80,7 @@ fun DisplayGoogleAuthInfo(dataMap: Map<String, String>) {
                         val clip = ClipData.newPlainText("TOTP Code", totpCode)
                         clipboard.setPrimaryClip(clip)
                         Toast.makeText(context, "验证码已复制", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier.size(24.dp)
+                    }, modifier = Modifier.size(24.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
@@ -96,9 +90,11 @@ fun DisplayGoogleAuthInfo(dataMap: Map<String, String>) {
                 }
             }
         }
-        Text(
-            text = "${countdownSeconds}s",
-            style = MaterialTheme.typography.bodySmall
+        CircularProgressIndicator(
+            progress = { countdownSeconds.toFloat() / 30f },
+            modifier = Modifier
+                .width(16.dp)
+                .height(16.dp)
         )
     }
 }

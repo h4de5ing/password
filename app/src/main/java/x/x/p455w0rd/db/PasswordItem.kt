@@ -25,7 +25,7 @@ data class PasswordItem(
         return try {
             @Suppress("UNCHECKED_CAST")
             Json.decodeFromString<Map<String, String>>(dataJson)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             emptyMap()
         }
     }
