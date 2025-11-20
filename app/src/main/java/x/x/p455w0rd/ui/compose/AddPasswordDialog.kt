@@ -1,13 +1,17 @@
 package x.x.p455w0rd.ui.compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -267,24 +271,54 @@ private fun MnemonicFormFields(
     }
     Spacer(modifier = Modifier.height(12.dp))
 
-    // 显示12或24个输入框
-    for (i in 1..mnemonicCount) {
+    // 矩阵显示输入框：12个单词显示为3X4，24个单词显示为3X8
+    val columnsCount = 3
+    val rowsCount = (mnemonicCount + columnsCount - 1) / columnsCount
+    
+    for (row in 0 until rowsCount) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = "$i",
-                modifier = Modifier.width(24.dp),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            OutlinedTextField(
-                value = formData["word_$i"] ?: "",
-                onValueChange = { onFormDataChange(formData + ("word_$i" to it)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+            for (col in 0 until columnsCount) {
+                val index = row * columnsCount + col + 1
+                
+                if (index <= mnemonicCount) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                            .padding(4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = index.toString(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            )
+                            OutlinedTextField(
+                                value = formData["word_$index"] ?: "",
+                                onValueChange = { onFormDataChange(formData + ("word_$index" to it)) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp),
+                                singleLine = true,
+                                textStyle = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                } else {
+                    // 空占位符
+                    Box(modifier = Modifier.weight(1f))
+                }
+            }
         }
         Spacer(modifier = Modifier.height(4.dp))
     }

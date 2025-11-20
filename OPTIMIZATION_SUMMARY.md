@@ -395,6 +395,113 @@ fun getCurrentTimeString(dateFormat: SimpleDateFormat = DEFAULT_DATE_FORMAT): St
   - 新增 `isExpanded` 状态变量
   - 重构控制按钮为两个独立的 `IconButton`
   - 将矩阵显示逻辑包裹在 `if (isExpanded)` 条件中
+
+### Phase 10: 添加助记词矩阵输入布局 ✅
+
+**功能改进：**
+- **矩阵输入布局** - 将线性输入框改为 3X4 或 3X8 矩阵
+- **12字助记词** - 显示为 3×4 矩阵（3列4行）
+- **24字助记词** - 显示为 3×8 矩阵（3列8行）
+- **视觉一致性** - 与列表显示的矩阵布局完全相同
+
+**输入框设计：**
+- 每个输入框在独立的卡片框中
+- 序号灰色显示在上方
+- 输入字段在下方，高度固定为 48dp
+- 背景色为 `surfaceVariant`，圆角 4dp 装饰
+- 序号和输入框都居中对齐
+
+**矩阵输入示意图：**
+```
+12字助记词输入（3X4）：
+┌────────┬────────┬────────┐
+│ 1      │ 2      │ 3      │
+│ [____] │ [____] │ [____] │
+├────────┼────────┼────────┤
+│ 4      │ 5      │ 6      │
+│ [____] │ [____] │ [____] │
+├────────┼────────┼────────┤
+│ 7      │ 8      │ 9      │
+│ [____] │ [____] │ [____] │
+├────────┼────────┼────────┤
+│ 10     │ 11     │ 12     │
+│ [____] │ [____] │ [____] │
+└────────┴────────┴────────┘
+```
+
+**技术实现：**
+- 使用 `columnsCount = 3` 固定列数
+- 计算行数：`rowsCount = (mnemonicCount + 2) / 3`
+- 双层循环遍历所有输入框位置
+- 每个输入框包裹在 `Box` 中，使用 `weight(1f)` 等分宽度
+- 不足的位置用空 `Box` 占位符填充
+
+**UI 优势：**
+- 📐 紧凑的矩阵布局，充分利用屏幕宽度
+- 👁️ 一眼看清所有输入框，输入速度快
+- 🎨 美观的圆角卡片设计，与显示界面风格一致
+- ⚡ 输入框响应式排列，适配各种屏幕宽度
+
+**文件变更：**
+- ✅ 新增导入：`Box`, `background`, `RoundedCornerShape`, `padding`
+- ✅ 更新：`app/src/main/java/x/x/p455w0rd/ui/compose/AddPasswordDialog.kt`
+  - 完全重写 `MnemonicFormFields()` 函数
+  - 实现矩阵输入布局
+  - 优化输入框尺寸和样式
+
+### Phase 11: FloatingActionButton 智能隐藏优化 ✅
+
+**功能改进：**
+- **滚动检测** - 监听 LazyColumn 的滚动状态
+- **自动隐藏/显示** - 向下滚动时 FAB 自动隐藏，回到顶部时自动显示
+- **平滑动画** - 使用 scaleIn/scaleOut 动画效果，FAB 缩放显示/隐藏
+- **不遮挡内容** - 解决 FAB 遮挡最后一行项目的问题
+
+**显示逻辑：**
+- 列表在顶部（firstVisibleItemIndex == 0 且滚动偏移为 0）时显示 FAB
+- 向下滚动任何距离时 FAB 自动隐藏
+- 快速滑回顶部时 FAB 自动显示，平滑动画过渡
+
+**技术实现：**
+```kotlin
+// 获取 LazyColumn 的滚动状态
+val lazyListState = rememberLazyListState()
+
+// 派生状态判断是否显示 FAB
+val showFab by remember {
+    derivedStateOf {
+        lazyListState.firstVisibleItemIndex == 0 && 
+        lazyListState.firstVisibleItemScrollOffset == 0
+    }
+}
+
+// 使用 AnimatedVisibility 包装 FAB，添加动画效果
+AnimatedVisibility(
+    visible = showFab,
+    enter = scaleIn(),
+    exit = scaleOut()
+)
+```
+
+**UI 效果：**
+- 📱 **顶部显示** - 列表在顶部时 FAB 正常显示
+- ⬇️ **向下滚动** - FAB 向下滑出消失
+- ⬆️ **向上滑动** - 回到顶部时 FAB 向上滑入显示
+- 🎯 **列表可操作** - 不再被 FAB 遮挡，可以看到并点击所有项目
+
+**优势：**
+- 👁️ **不遮挡内容** - 最后一行项目不再被 FAB 遮挡
+- ✨ **流畅动画** - 平滑的上下滑动过渡
+- 🎯 **智能隐藏** - 用户需要时显示，不需要时隐藏
+- 📱 **充分利用屏幕** - 向下滚动时可以看到更多内容
+
+**文件变更：**
+- ✅ 新增导入：`AnimatedVisibility`, `scaleIn`, `scaleOut`, `rememberLazyListState`, `derivedStateOf`
+- ✅ 更新：`app/src/main/java/x/x/p455w0rd/ui/compose/MainUI.kt`
+  - 添加 `lazyListState` 来跟踪滚动状态
+  - 创建 `showFab` 派生状态
+  - 用 `AnimatedVisibility` 包装 FAB，添加缩放动画
+  - 将 `lazyListState` 传递给 `LazyColumn`
 5. **安全隐藏** - 关键信息部分遮蔽
 6. **用户友好** - 紧凑展示，点击展开
 
