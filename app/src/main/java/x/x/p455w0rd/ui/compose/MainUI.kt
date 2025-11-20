@@ -34,13 +34,17 @@ import x.x.p455w0rd.db.PasswordItem
 @Composable
 fun MainUI() {
     var showAddDialog by remember { mutableStateOf(false) }
+    var editingPasswordItem by remember { mutableStateOf<PasswordItem?>(null) }
     val dao = App.dao
     val passwordList by dao.observerPasswordItem().collectAsState(initial = emptyList())
     Scaffold(topBar = {
         CenterAlignedTopAppBar(title = { Text("密码本") })
     }, floatingActionButton = {
         FloatingActionButton(
-            onClick = { showAddDialog = true }, containerColor = MaterialTheme.colorScheme.primary
+            onClick = {
+                editingPasswordItem = null
+                showAddDialog = true
+            }, containerColor = MaterialTheme.colorScheme.primary
         ) {
             Icon(
                 imageVector = Icons.Default.Add, contentDescription = "添加密码"
@@ -87,6 +91,10 @@ fun MainUI() {
                     PasswordItemCard(
                         passwordItem = item,
                         onItemClick = {},
+                        onEdit = {
+                            editingPasswordItem = item
+                            showAddDialog = true
+                        },
                         onDelete = { dao.delete(item) },
                     )
                 }
@@ -95,30 +103,37 @@ fun MainUI() {
     }
 
     if (showAddDialog) {
-        AddPasswordDialog(
-            onDismiss = { showAddDialog = false },
-            onConfirm = { type, title, dataMap, memo ->
-                // 根据类型提取account字段
-                val account = when (type) {
-                    1 -> dataMap["用户名"] ?: ""  // PASSWORD
-                    2 -> dataMap["网站"] ?: ""     // GOOGLE_AUTH
-                    3 -> dataMap["word_1"] ?: ""   // MNEMONIC (第一个助记词)
-                    4 -> dataMap["卡号"] ?: ""     // BANK_CARD
-                    5 -> dataMap["姓名"] ?: ""     // ID_CARD
-                    else -> ""
-                }
-                dao.insert(
-                    PasswordItem(
-                        id = 0,
-                        type = type,
-                        title = title,
-                        account = account,
-                        password = dataMap["密码"] ?: "",
-                        memoInfo = memo,
-                        dataJson = "" // 将在setDataMap时设置
-                    ).apply {
-                        setDataMap(dataMap)
-                    })
-            })
+        AddPasswordDialog(passwordItem = editingPasswordItem, onDismiss = {
+            showAddDialog = false
+            editingPasswordItem = null
+        }, onConfirm = { type, title, dataMap, memo ->
+            // 根据类型提取account字段
+            val account = when (type) {
+                1 -> dataMap["用户名"] ?: ""  // PASSWORD
+                2 -> dataMap["网站"] ?: ""     // GOOGLE_AUTH
+                3 -> dataMap["word_1"] ?: ""   // MNEMONIC (第一个助记词)
+                4 -> dataMap["卡号"] ?: ""     // BANK_CARD
+                5 -> dataMap["姓名"] ?: ""     // ID_CARD
+                else -> ""
+            }
+
+            val newItem = PasswordItem(
+                id = editingPasswordItem?.id ?: 0,
+                type = type,
+                title = title,
+                account = account,
+                password = dataMap["密码"] ?: "",
+                memoInfo = memo,
+                dataJson = "" // 将在setDataMap时设置
+            ).apply {
+                setDataMap(dataMap)
+            }
+
+            if (editingPasswordItem != null) {
+                dao.update(newItem)
+            } else {
+                dao.insert(newItem)
+            }
+        })
     }
 }

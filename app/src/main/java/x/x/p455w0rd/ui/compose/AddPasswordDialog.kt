@@ -34,22 +34,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import x.x.p455w0rd.db.PasswordItem
 import x.x.p455w0rd.db.PasswordType
 
 @Composable
 fun AddPasswordDialog(
+    passwordItem: PasswordItem? = null,
     onDismiss: () -> Unit,
     onConfirm: (type: Int, title: String, dataMap: Map<String, String>, memo: String) -> Unit
 ) {
-    var selectedType by remember { mutableStateOf(PasswordType.PASSWORD) }
+    var selectedType by remember { mutableStateOf(passwordItem?.getPasswordType() ?: PasswordType.PASSWORD) }
     var showTypeDropdown by remember { mutableStateOf(false) }
     
     // 为每个字段都创建独立的状态
-    var formDataState by remember { mutableStateOf(mapOf<String, String>()) }
+    var formDataState by remember {
+        mutableStateOf(
+            if (passwordItem != null) {
+                val map = passwordItem.getDataMap().toMutableMap()
+                map["标题"] = passwordItem.title
+                map["备注"] = passwordItem.memoInfo
+                map
+            } else {
+                mapOf()
+            }
+        )
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("添加密码") },
+        title = { Text(if (passwordItem == null) "添加密码" else "编辑密码") },
         text = {
             Column(
                 modifier = Modifier
@@ -128,7 +141,7 @@ fun AddPasswordDialog(
                 enabled = formDataState["标题"]?.isNotBlank() == true &&
                         formDataState.size > 1
             ) {
-                Text("添加")
+                Text(if (passwordItem == null) "添加" else "保存")
             }
         },
         dismissButton = {
