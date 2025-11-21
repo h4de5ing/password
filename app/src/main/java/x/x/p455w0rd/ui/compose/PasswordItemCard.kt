@@ -1,5 +1,6 @@
 package x.x.p455w0rd.ui.compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -73,13 +77,40 @@ fun PasswordItemCard(
                     onClick = { onItemClick(passwordItem) },
                     onLongClick = { showMenu = true }
                 ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            )
         ) {
+            // 绘制背景渐变
+            val gradientColors = getCardGradientColors(passwordType)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .drawBehind {
+                        drawRect(
+                            brush = Brush.linearGradient(
+                                colors = gradientColors,
+                                start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                                end = androidx.compose.ui.geometry.Offset(size.width, 0f)
+                            )
+                        )
+                    }
+            )
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
+                // 类型指示器 - 彩色圆点
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp).background( getCardBackgroundColor(passwordType))
+                )
+
                 // 标题和类型标签
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -95,7 +126,9 @@ fun PasswordItemCard(
                     Text(
                         text = passwordType.displayName,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = getCardBackgroundColor(passwordType),
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(start = 8.dp)
                     )
                 }
 
