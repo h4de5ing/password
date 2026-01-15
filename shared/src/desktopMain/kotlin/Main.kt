@@ -15,7 +15,7 @@ import org.jetbrains.compose.resources.stringResource
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "Password Manager"
+        title = "密码本"
     ) {
         MaterialTheme {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

@@ -17,9 +17,6 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
-        maven {
-            url = uri("https://gitee.com/lex1992/repository/raw/master/repository")
-        }
     }
 }
 

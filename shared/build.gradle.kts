@@ -13,9 +13,7 @@ plugins {
 
 kotlin {
     androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
+        compilerOptions { jvmTarget.set(JvmTarget.JVM_22) }
     }
 
     jvm("desktop")
@@ -41,7 +39,6 @@ kotlin {
                 implementation(libs.androidx.navigation.compose)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.room.runtime)
-                implementation(libs.room.compiler)
                 implementation(libs.sqlite.bundled)
                 implementation(libs.kotlinx.serialization.json)
             }
@@ -70,9 +67,33 @@ android {
         versionCode = 20
         versionName = "2.0.0"
     }
+    signingConfigs {
+        create("release") {
+            storeFile = file("../hello_android.jks")
+            keyAlias = "android"
+            keyPassword = "android"
+            storePassword = "android"
+        }
+    }
+    buildTypes {
+        debug {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+        }
+        release {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_22
+        targetCompatibility = JavaVersion.VERSION_22
+    }
+    buildFeatures {
+        compose = true
+    }
+    dependencies {
+        debugImplementation(compose.uiTooling)
     }
 }
 
