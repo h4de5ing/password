@@ -5,7 +5,7 @@
             android:icon="@drawable/ic_launcher"
             android:label="Password Manager"
             android:supportsRtl="true"
-            android:theme="@style/Theme.AppTheme">
+            android:theme="@style/android:Theme.Material.Light.NoActionBar">
         <activity
                 android:name=".MainActivity"
                 android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"

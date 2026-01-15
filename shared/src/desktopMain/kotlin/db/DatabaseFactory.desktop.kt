@@ -6,13 +6,11 @@ import java.io.File
 
 actual object DatabaseFactory {
     actual fun create(): AppDatabase {
-        val dbFile = File(System.getProperty("user.home"), ".password/data.db")
+        val dbFile = File("data", "data.db")
         dbFile.parentFile?.mkdirs()
-        return Room.databaseBuilder<AppDatabase>(
-            name = dbFile.absolutePath
-        )
+        return Room.databaseBuilder<AppDatabase>(name = dbFile.absolutePath)
             .setDriver(BundledSQLiteDriver())
-            .fallbackToDestructiveMigration(dropAllTables=true)
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
     }
 }
