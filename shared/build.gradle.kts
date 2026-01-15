@@ -101,6 +101,10 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
+ksp {
+    arg("room.generateKotlin", "true")
+}
+
 dependencies {
     debugImplementation(compose.uiTooling)
     add("kspAndroid", libs.room.compiler)
