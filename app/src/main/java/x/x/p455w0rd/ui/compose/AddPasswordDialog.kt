@@ -67,6 +67,8 @@ fun AddPasswordDialog(
         )
     }
 
+    val isEditing = passwordItem != null
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (passwordItem == null) "添加密码" else "编辑密码") },
@@ -79,15 +81,18 @@ fun AddPasswordDialog(
                 // 类型选择器
                 Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedButton(
-                        onClick = { showTypeDropdown = true },
+                        onClick = { if (!isEditing) showTypeDropdown = true },
+                        enabled = !isEditing,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
                     ) {
                         Text("类型: ${selectedType.displayName}")
                     }
+
+                    // 仅新增时允许选择类型
                     DropdownMenu(
-                        expanded = showTypeDropdown,
+                        expanded = showTypeDropdown && !isEditing,
                         onDismissRequest = { showTypeDropdown = false }
                     ) {
                         for (type in PasswordType.entries) {
@@ -318,36 +323,55 @@ private fun BankCardFormFields(
     formData: Map<String, String>,
     onFormDataChange: (Map<String, String>) -> Unit
 ) {
-    var cardType by remember { mutableStateOf(formData["卡类型"] ?: "信用卡") }
+    val existingCardType = formData["卡类型"]?.takeIf { it.isNotBlank() }
+
+    // 编辑模式：如果已有卡类型，则不允许切换
+    val allowTypeSwitch = existingCardType == null
+
+    var cardType by remember {
+        mutableStateOf(existingCardType ?: "信用卡")
+    }
     var showCardNumber by remember { mutableStateOf(false) }
     var showCvv by remember { mutableStateOf(false) }
 
-    // 卡类型选择
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Button(
-            onClick = {
-                cardType = "信用卡"
-                onFormDataChange(formData + ("卡类型" to "信用卡"))
-            },
-            modifier = Modifier.weight(1f),
-            colors = if (cardType == "信用卡") ButtonDefaults.buttonColors()
-            else ButtonDefaults.outlinedButtonColors()
+    if (allowTypeSwitch) {
+        // 卡类型选择（仅新增时显示）
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("信用卡")
+            Button(
+                onClick = {
+                    cardType = "信用卡"
+                    onFormDataChange(formData + ("卡类型" to "信用卡"))
+                },
+                modifier = Modifier.weight(1f),
+                colors = if (cardType == "信用卡") ButtonDefaults.buttonColors()
+                else ButtonDefaults.outlinedButtonColors()
+            ) {
+                Text("信用卡")
+            }
+            Button(
+                onClick = {
+                    cardType = "借记卡"
+                    onFormDataChange(formData + ("卡类型" to "借记卡"))
+                },
+                modifier = Modifier.weight(1f),
+                colors = if (cardType == "借记卡") ButtonDefaults.buttonColors()
+                else ButtonDefaults.outlinedButtonColors()
+            ) {
+                Text("借记卡")
+            }
         }
-        Button(
-            onClick = {
-                cardType = "借记卡"
-                onFormDataChange(formData + ("卡类型" to "借记卡"))
-            },
-            modifier = Modifier.weight(1f),
-            colors = if (cardType == "借记卡") ButtonDefaults.buttonColors()
-            else ButtonDefaults.outlinedButtonColors()
-        ) {
-            Text("借记卡")
-        }
+        Spacer(modifier = Modifier.height(8.dp))
+    } else {
+        // 编辑时固定展示卡类型
+        Text(
+            text = "卡类型: $cardType",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
     }
-    Spacer(modifier = Modifier.height(8.dp))
 
     FormTextField(
         label = "银行名称*",
