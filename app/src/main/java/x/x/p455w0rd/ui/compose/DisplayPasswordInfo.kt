@@ -26,43 +26,35 @@ fun DisplayPasswordInfo(
     val username = dataMap["用户名"] ?: ""
     val password = dataMap["密码"] ?: ""
     val website = dataMap["网站"] ?: ""
-
-    if (username.isNotEmpty()) {
+    Text(
+        text = "用户名: ${if (showPassword) username else "•".repeat(username.length.coerceAtLeast(3))}",
+        style = MaterialTheme.typography.bodyMedium
+    )
+    Spacer(modifier = Modifier.height(4.dp))
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Text(
-            text = "用户名: $username", style = MaterialTheme.typography.bodyMedium
+            text = "密码: ${
+                if (showPassword) password
+                else "•".repeat(password.length.coerceAtLeast(3))
+            }", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f)
         )
-        Spacer(modifier = Modifier.height(4.dp))
-    }
-
-    if (password.isNotEmpty()) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+        Spacer(modifier = Modifier.width(8.dp))
+        IconButton(
+            onClick = { onShowPasswordChange(!showPassword) }, modifier = Modifier.size(20.dp)
         ) {
-            Text(
-                text = "密码: ${
-                    if (showPassword) password
-                    else "•".repeat(password.length.coerceAtLeast(3))
-                }", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f)
+            Icon(
+                imageVector = if (showPassword) Icons.Default.VisibilityOff
+                else Icons.Default.Visibility,
+                contentDescription = if (showPassword) "隐藏信息" else "显示信息"
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(
-                onClick = { onShowPasswordChange(!showPassword) }, modifier = Modifier.size(20.dp)
-            ) {
-                Icon(
-                    imageVector = if (showPassword) Icons.Default.VisibilityOff
-                    else Icons.Default.Visibility,
-                    contentDescription = if (showPassword) "隐藏密码" else "显示密码"
-                )
-            }
         }
-        Spacer(modifier = Modifier.height(4.dp))
     }
-
-    if (website.isNotEmpty()) {
-        Text(
-            text = "网站: $website", style = MaterialTheme.typography.bodyMedium
-        )
-    }
+    Spacer(modifier = Modifier.height(4.dp))
+    Text(
+        text = "网站: $website", style = MaterialTheme.typography.bodyMedium
+    )
 }

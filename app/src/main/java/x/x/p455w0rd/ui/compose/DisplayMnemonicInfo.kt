@@ -54,18 +54,22 @@ fun DisplayMnemonicInfo(dataMap: Map<String, String>) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // 显示/隐藏单词图标
-            IconButton(
-                onClick = { showWords = !showWords }, modifier = Modifier.size(32.dp)
-            ) {
-                Icon(
-                    imageVector = if (showWords) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                    contentDescription = if (showWords) "隐藏单词" else "显示单词",
-                    modifier = Modifier.size(18.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+            // 只有在展开状态下才允许显示/隐藏单词
+            if (isExpanded) {
+                IconButton(
+                    onClick = { showWords = !showWords }, modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = if (showWords) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        contentDescription = if (showWords) "隐藏单词" else "显示单词",
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            } else {
+                // 折叠时强制隐藏（保持安全默认）
+                if (showWords) showWords = false
             }
-
             // 展开/折叠矩阵图标
             IconButton(
                 onClick = { isExpanded = !isExpanded }, modifier = Modifier.size(32.dp)

@@ -113,7 +113,7 @@ fun PasswordItemCard(
                         .background(getCardBackgroundColor(passwordType))
                 )
 
-                // 标题和类型标签（移除标题，仅显示类型）
+                // 类型标签
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,

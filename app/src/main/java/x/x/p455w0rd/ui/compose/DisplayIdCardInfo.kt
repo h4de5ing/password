@@ -30,50 +30,52 @@ fun DisplayIdCardInfo(
     val idNumber = dataMap["身份证号码"] ?: ""
     val address = dataMap["地址"] ?: ""
 
-    if (name.isNotEmpty()) {
-        Text(
-            text = "姓名: $name",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-    }
+    // 姓名始终显示
+    Text(
+        text = "姓名: $name",
+        style = MaterialTheme.typography.bodyMedium,
+        fontWeight = FontWeight.SemiBold
+    )
+    Spacer(modifier = Modifier.height(4.dp))
 
-    if (idNumber.isNotEmpty()) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "身份证号: ${
-                    if (showIdNumber) idNumber else {
-                        val lastThree = idNumber.takeLast(3)
-                        "*".repeat(idNumber.length - 3) + lastThree
-                    }
-                }",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(
-                onClick = { onShowIdNumberChange(!showIdNumber) },
-                modifier = Modifier.size(20.dp)
-            ) {
-                Icon(
-                    imageVector = if (showIdNumber) Icons.Default.VisibilityOff
-                    else Icons.Default.Visibility,
-                    contentDescription = null
-                )
-            }
+    // 身份证号始终显示（带显隐按钮，同时控制身份证号和地址的显示/隐藏）
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        val masked = if (showIdNumber) idNumber else {
+            val keep = idNumber.takeLast(3)
+            "•".repeat((idNumber.length - 3).coerceAtLeast(0)) + keep
         }
-        Spacer(modifier = Modifier.height(4.dp))
-    }
-
-    if (address.isNotEmpty()) {
         Text(
-            text = "地址: ${address.take(20)}${if (address.length > 20) "..." else ""}",
-            style = MaterialTheme.typography.bodyMedium
+            text = "身份证号: $masked",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
         )
+        Spacer(modifier = Modifier.width(8.dp))
+        IconButton(
+            onClick = { onShowIdNumberChange(!showIdNumber) },
+            modifier = Modifier.size(20.dp)
+        ) {
+            Icon(
+                imageVector = if (showIdNumber) Icons.Default.VisibilityOff
+                else Icons.Default.Visibility,
+                contentDescription = if (showIdNumber) "隐藏身份证信息" else "显示身份证信息"
+            )
+        }
     }
+    Spacer(modifier = Modifier.height(4.dp))
+
+    // 地址始终显示
+    val maskedAddress = if (showIdNumber) {
+        address
+    } else {
+        // 地址默认隐藏：不展示明文，给一个固定占位，避免泄露位置信息
+        "••••••"
+    }
+    Text(
+        text = "地址: ${maskedAddress.take(20)}${if (maskedAddress.length > 20) "..." else ""}",
+        style = MaterialTheme.typography.bodyMedium
+    )
 }
