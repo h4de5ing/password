@@ -3,7 +3,7 @@ package x.x.p455w0rd.ui.compose
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.widget.Toast
+import x.x.p455w0rd.ui.snack.LocalSnackController
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +30,7 @@ fun DisplayBankCardInfo(
     dataMap: Map<String, String>, showCardNumber: Boolean, onShowCardNumberChange: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
+    val snack = LocalSnackController.current
 
     val cardType = dataMap["卡类型"] ?: "信用卡"
     val bankName = dataMap["银行名称"] ?: ""
@@ -78,7 +79,7 @@ fun DisplayBankCardInfo(
                     val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     cm.setPrimaryClip(ClipData.newPlainText("bank_card", text))
 
-                    Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show()
+                    snack.show("已复制")
                 }, modifier = Modifier.size(20.dp)
             ) {
                 Icon(

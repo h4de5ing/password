@@ -3,7 +3,7 @@ package x.x.p455w0rd.ui.compose
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.widget.Toast
+import x.x.p455w0rd.ui.snack.LocalSnackController
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,6 +37,7 @@ import x.x.p455w0rd.util.TotpUtils
 @Composable
 fun DisplayGoogleAuthInfo(dataMap: Map<String, String>) {
     val context = LocalContext.current
+    val snack = LocalSnackController.current
     val secret = dataMap["恢复代码"] ?: ""
     var totpCode by remember { mutableStateOf("000000") }
     var countdownSeconds by remember { mutableIntStateOf(30) }
@@ -79,7 +80,7 @@ fun DisplayGoogleAuthInfo(dataMap: Map<String, String>) {
                             context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("TOTP Code", totpCode)
                         clipboard.setPrimaryClip(clip)
-                        Toast.makeText(context, "验证码已复制", Toast.LENGTH_SHORT).show()
+                        snack.show("验证码已复制")
                     }, modifier = Modifier.size(24.dp)
                 ) {
                     Icon(
