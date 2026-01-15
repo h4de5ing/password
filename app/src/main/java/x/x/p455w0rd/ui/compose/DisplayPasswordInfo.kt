@@ -21,9 +21,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DisplayPasswordInfo(
-    dataMap: Map<String, String>,
-    showPassword: Boolean,
-    onShowPasswordChange: (Boolean) -> Unit
+    dataMap: Map<String, String>, showPassword: Boolean, onShowPasswordChange: (Boolean) -> Unit
 ) {
     val username = dataMap["用户名"] ?: ""
     val password = dataMap["密码"] ?: ""
@@ -31,8 +29,7 @@ fun DisplayPasswordInfo(
 
     if (username.isNotEmpty()) {
         Text(
-            text = "用户名: $username",
-            style = MaterialTheme.typography.bodyMedium
+            text = "用户名: $username", style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(4.dp))
     }
@@ -47,14 +44,11 @@ fun DisplayPasswordInfo(
                 text = "密码: ${
                     if (showPassword) password
                     else "•".repeat(password.length.coerceAtLeast(3))
-                }",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
+                }", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(
-                onClick = { onShowPasswordChange(!showPassword) },
-                modifier = Modifier.size(20.dp)
+                onClick = { onShowPasswordChange(!showPassword) }, modifier = Modifier.size(20.dp)
             ) {
                 Icon(
                     imageVector = if (showPassword) Icons.Default.VisibilityOff
@@ -68,8 +62,7 @@ fun DisplayPasswordInfo(
 
     if (website.isNotEmpty()) {
         Text(
-            text = "网站: $website",
-            style = MaterialTheme.typography.bodyMedium
+            text = "网站: $website", style = MaterialTheme.typography.bodyMedium
         )
     }
 }

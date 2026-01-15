@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import x.x.p455w0rd.theme.ComposePasswordTheme
 import x.x.p455w0rd.ui.compose.MainUI
 
-class MainActivity2 : ComponentActivity() {
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

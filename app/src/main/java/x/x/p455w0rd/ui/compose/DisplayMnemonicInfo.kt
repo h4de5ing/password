@@ -40,8 +40,7 @@ fun DisplayMnemonicInfo(dataMap: Map<String, String>) {
     val wordCount = (1..24).count { dataMap["word_$it"]?.isNotEmpty() == true }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -57,8 +56,7 @@ fun DisplayMnemonicInfo(dataMap: Map<String, String>) {
         ) {
             // 显示/隐藏单词图标
             IconButton(
-                onClick = { showWords = !showWords },
-                modifier = Modifier.size(32.dp)
+                onClick = { showWords = !showWords }, modifier = Modifier.size(32.dp)
             ) {
                 Icon(
                     imageVector = if (showWords) Icons.Default.VisibilityOff else Icons.Default.Visibility,
@@ -70,8 +68,7 @@ fun DisplayMnemonicInfo(dataMap: Map<String, String>) {
 
             // 展开/折叠矩阵图标
             IconButton(
-                onClick = { isExpanded = !isExpanded },
-                modifier = Modifier.size(32.dp)
+                onClick = { isExpanded = !isExpanded }, modifier = Modifier.size(32.dp)
             ) {
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -107,8 +104,7 @@ fun DisplayMnemonicInfo(dataMap: Map<String, String>) {
                                 color = MaterialTheme.colorScheme.surfaceVariant,
                                 shape = RoundedCornerShape(4.dp)
                             )
-                            .padding(8.dp),
-                        contentAlignment = Alignment.Center
+                            .padding(8.dp), contentAlignment = Alignment.Center
                     ) {
                         if (word.isNotEmpty()) {
                             Column(

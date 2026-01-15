@@ -51,9 +51,7 @@ fun Long.getConciseTime(context: Context?): String {
 /**
  * 将时间戳转换为字符串
  */
-fun Long.formatTime(dateFormat: SimpleDateFormat = DEFAULT_DATE_FORMAT): String {
-    return dateFormat.format(Date(this))
-}
+fun Long.formatTime(dateFormat: SimpleDateFormat = DEFAULT_DATE_FORMAT): String = dateFormat.format(Date(this))
 
 /**
  * 获取当前时间戳（毫秒）
@@ -63,6 +61,5 @@ fun getCurrentTimeInMillis(): Long = System.currentTimeMillis()
 /**
  * 获取当前时间的字符串表示
  */
-fun getCurrentTimeString(dateFormat: SimpleDateFormat = DEFAULT_DATE_FORMAT): String {
-    return getCurrentTimeInMillis().formatTime(dateFormat)
-}
+fun getCurrentTimeString(dateFormat: SimpleDateFormat = DEFAULT_DATE_FORMAT): String =
+    getCurrentTimeInMillis().formatTime(dateFormat)

@@ -10,7 +10,6 @@ data class PasswordItem(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     var type: Int = 1,
-    var title: String = "",
     var account: String = "",
     var password: String = "",
     var memoInfo: String = "",
@@ -34,6 +33,3 @@ data class PasswordItem(
         dataJson = Json.encodeToString(data)
     }
 }
-
-// 数据存储格式
-typealias PasswordDataMap = Map<String, String>

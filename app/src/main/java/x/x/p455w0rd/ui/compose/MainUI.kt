@@ -136,7 +136,7 @@ fun MainUI() {
                 showAddDialog = false
                 editingPasswordItem = null
             },
-            onConfirm = { type, title, dataMap, memo ->
+            onConfirm = { type, dataMap, memo ->
                 // 根据类型提取account字段
                 val account = when (type) {
                     1 -> dataMap["用户名"] ?: ""  // PASSWORD
@@ -150,7 +150,6 @@ fun MainUI() {
                 val newItem = PasswordItem(
                     id = editingPasswordItem?.id ?: 0,
                     type = type,
-                    title = title,
                     account = account,
                     password = dataMap["密码"] ?: "",
                     memoInfo = memo,

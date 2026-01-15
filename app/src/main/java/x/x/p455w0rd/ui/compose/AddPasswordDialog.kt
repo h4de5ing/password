@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -30,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,17 +45,20 @@ import x.x.p455w0rd.db.PasswordType
 fun AddPasswordDialog(
     passwordItem: PasswordItem? = null,
     onDismiss: () -> Unit,
-    onConfirm: (type: Int, title: String, dataMap: Map<String, String>, memo: String) -> Unit
+    onConfirm: (type: Int, dataMap: Map<String, String>, memo: String) -> Unit
 ) {
-    var selectedType by remember { mutableStateOf(passwordItem?.getPasswordType() ?: PasswordType.PASSWORD) }
+    var selectedType by remember {
+        mutableStateOf(
+            passwordItem?.getPasswordType() ?: PasswordType.PASSWORD
+        )
+    }
     var showTypeDropdown by remember { mutableStateOf(false) }
-    
+
     // 为每个字段都创建独立的状态
     var formDataState by remember {
         mutableStateOf(
             if (passwordItem != null) {
                 val map = passwordItem.getDataMap().toMutableMap()
-                map["标题"] = passwordItem.title
                 map["备注"] = passwordItem.memoInfo
                 map
             } else {
@@ -129,21 +132,19 @@ fun AddPasswordDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val title = formDataState["标题"]?.takeIf { it.isNotBlank() }
                     val memo = formDataState["备注"] ?: ""
                     val dataMap = formDataState.filterKeys { it != "备注" }
-                    if (title != null && dataMap.isNotEmpty()) {
+                    if (dataMap.isNotEmpty()) {
                         onConfirm(
                             selectedType.id,
-                            title,
                             dataMap,
                             memo
                         )
                         onDismiss()
                     }
                 },
-                enabled = formDataState["标题"]?.isNotBlank() == true &&
-                        formDataState.size > 1
+                enabled = formDataState.isNotEmpty() &&
+                        formDataState.any { it.key != "备注" && it.value.isNotBlank() }
             ) {
                 Text(if (passwordItem == null) "添加" else "保存")
             }
@@ -162,13 +163,6 @@ private fun PasswordFormFields(
     onFormDataChange: (Map<String, String>) -> Unit
 ) {
     var showPassword by remember { mutableStateOf(false) }
-
-    FormTextField(
-        label = "标题*",
-        value = formData["标题"] ?: "",
-        onValueChange = { onFormDataChange(formData + ("标题" to it)) }
-    )
-    Spacer(modifier = Modifier.height(8.dp))
 
     FormTextField(
         label = "用户名*",
@@ -207,13 +201,6 @@ private fun GoogleAuthFormFields(
     onFormDataChange: (Map<String, String>) -> Unit
 ) {
     FormTextField(
-        label = "标题*",
-        value = formData["标题"] ?: "",
-        onValueChange = { onFormDataChange(formData + ("标题" to it)) }
-    )
-    Spacer(modifier = Modifier.height(8.dp))
-
-    FormTextField(
         label = "网站*",
         value = formData["网站"] ?: "",
         onValueChange = { onFormDataChange(formData + ("网站" to it)) }
@@ -241,30 +228,23 @@ private fun MnemonicFormFields(
     formData: Map<String, String>,
     onFormDataChange: (Map<String, String>) -> Unit
 ) {
-    var mnemonicCount by remember { mutableStateOf(12) }
-
-    FormTextField(
-        label = "标题*",
-        value = formData["标题"] ?: "",
-        onValueChange = { onFormDataChange(formData + ("标题" to it)) }
-    )
-    Spacer(modifier = Modifier.height(8.dp))
+    var mnemonicCount by remember { mutableIntStateOf(12) }
 
     // 选择12或24个助记词
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Button(
             onClick = { mnemonicCount = 12 },
             modifier = Modifier.weight(1f),
-            colors = if (mnemonicCount == 12) androidx.compose.material3.ButtonDefaults.buttonColors()
-            else androidx.compose.material3.ButtonDefaults.outlinedButtonColors()
+            colors = if (mnemonicCount == 12) ButtonDefaults.buttonColors()
+            else ButtonDefaults.outlinedButtonColors()
         ) {
             Text("12个单词")
         }
         Button(
             onClick = { mnemonicCount = 24 },
             modifier = Modifier.weight(1f),
-            colors = if (mnemonicCount == 24) androidx.compose.material3.ButtonDefaults.buttonColors()
-            else androidx.compose.material3.ButtonDefaults.outlinedButtonColors()
+            colors = if (mnemonicCount == 24) ButtonDefaults.buttonColors()
+            else ButtonDefaults.outlinedButtonColors()
         ) {
             Text("24个单词")
         }
@@ -274,7 +254,7 @@ private fun MnemonicFormFields(
     // 矩阵显示输入框：12个单词显示为3X4，24个单词显示为3X8
     val columnsCount = 3
     val rowsCount = (mnemonicCount + columnsCount - 1) / columnsCount
-    
+
     for (row in 0 until rowsCount) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -282,7 +262,7 @@ private fun MnemonicFormFields(
         ) {
             for (col in 0 until columnsCount) {
                 val index = row * columnsCount + col + 1
-                
+
                 if (index <= mnemonicCount) {
                     Box(
                         modifier = Modifier
@@ -341,13 +321,6 @@ private fun BankCardFormFields(
     var cardType by remember { mutableStateOf(formData["卡类型"] ?: "信用卡") }
     var showCardNumber by remember { mutableStateOf(false) }
     var showCvv by remember { mutableStateOf(false) }
-
-    FormTextField(
-        label = "标题*",
-        value = formData["标题"] ?: "",
-        onValueChange = { onFormDataChange(formData + ("标题" to it)) }
-    )
-    Spacer(modifier = Modifier.height(8.dp))
 
     // 卡类型选择
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -439,12 +412,6 @@ private fun IdCardFormFields(
     formData: Map<String, String>,
     onFormDataChange: (Map<String, String>) -> Unit
 ) {
-    FormTextField(
-        label = "标题",
-        value = formData["标题"] ?: "",
-        onValueChange = { onFormDataChange(formData + ("标题" to it)) }
-    )
-    Spacer(modifier = Modifier.height(8.dp))
 
     FormTextField(
         label = "姓名*",

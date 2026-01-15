@@ -48,13 +48,14 @@ fun PasswordItemCard(
     val context = LocalContext.current
     val passwordType = passwordItem.getPasswordType()
     val dataMap = passwordItem.getDataMap()
+    val displayTitle = passwordType.displayName
     var showSensitiveInfo by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
 
     if (showDeleteDialog) {
         DeleteConfirmDialog(
-            title = passwordItem.title,
+            title = displayTitle,
             onConfirm = {
                 showDeleteDialog = false
                 onDelete(passwordItem)
@@ -108,27 +109,21 @@ fun PasswordItemCard(
                 // 类型指示器 - 彩色圆点
                 Box(
                     modifier = Modifier
-                        .padding(bottom = 8.dp).background( getCardBackgroundColor(passwordType))
+                        .padding(bottom = 8.dp)
+                        .background(getCardBackgroundColor(passwordType))
                 )
 
-                // 标题和类型标签
+                // 标题和类型标签（移除标题，仅显示类型）
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = passwordItem.title,
+                        text = passwordType.displayName,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = passwordType.displayName,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = getCardBackgroundColor(passwordType),
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(start = 8.dp)
                     )
                 }
 
