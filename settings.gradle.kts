@@ -25,3 +25,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "P455W0rd"
 include(":app")
+include(":shared")
