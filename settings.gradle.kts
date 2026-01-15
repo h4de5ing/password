@@ -23,6 +23,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "P455W0rd"
-include(":app")
+rootProject.name = "password"
+//include(":app")
 include(":shared")
