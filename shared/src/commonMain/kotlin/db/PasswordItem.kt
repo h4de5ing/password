@@ -7,8 +7,7 @@ import kotlinx.serialization.json.Json
 
 @Entity(tableName = "password", indices = [Index(value = ["id"], unique = true)])
 data class PasswordItem(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     var type: Int = 1,
     var account: String = "",
     var password: String = "",
@@ -22,8 +21,7 @@ data class PasswordItem(
 
     fun getDataMap(): Map<String, String> {
         return try {
-            @Suppress("UNCHECKED_CAST")
-            Json.decodeFromString<Map<String, String>>(dataJson)
+            @Suppress("UNCHECKED_CAST") Json.decodeFromString<Map<String, String>>(dataJson)
         } catch (_: Exception) {
             emptyMap()
         }

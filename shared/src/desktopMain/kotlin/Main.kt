@@ -6,11 +6,15 @@ import androidx.compose.ui.window.application
 import com.password.shared.db.DatabaseFactory
 import com.password.shared.theme.AppTheme
 import com.password.shared.ui.screens.MainUI
+import org.jetbrains.compose.resources.painterResource
+import password.shared.generated.resources.Res
+import password.shared.generated.resources.ic_launcher
 
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "密码本"
+        title = "密码本",
+        icon = painterResource(Res.drawable.ic_launcher),
     ) {
         val db = remember { DatabaseFactory.create() }
         val dao = remember(db) { db.roomDao() }

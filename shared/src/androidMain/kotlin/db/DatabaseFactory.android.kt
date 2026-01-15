@@ -13,11 +13,7 @@ actual object DatabaseFactory {
     actual fun create(): AppDatabase {
         val ctx = context ?: throw IllegalStateException("DatabaseFactory not initialized")
         return Room.databaseBuilder(
-            ctx,
-            AppDatabase::class.java,
-            "data.db"
-        )
-            .fallbackToDestructiveMigration(dropAllTables = true)
-            .build()
+            ctx, AppDatabase::class.java, "data.db"
+        ).fallbackToDestructiveMigration(dropAllTables = true).build()
     }
 }

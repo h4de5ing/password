@@ -16,6 +16,6 @@ data class ExportItem(
 @Serializable
 data class ExportPayload(
     val version: Int = 1,
-    val exportedAt: Long = com.password.shared.util.getCurrentTimeInMillis(),
+    val exportedAt: Long = System.currentTimeMillis(),
     val items: List<ExportItem> = emptyList()
 )

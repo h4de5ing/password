@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -40,9 +39,7 @@ fun MainScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = snackbarHost,
-        topBar = {
+    Scaffold(snackbarHost = snackbarHost, topBar = {
         CenterAlignedTopAppBar(
             title = { Text("密码本") },
             actions = topBarActions,
@@ -52,8 +49,7 @@ fun MainScreen(
             visible = showFab, enter = scaleIn(), exit = scaleOut()
         ) {
             FloatingActionButton(
-                onClick = onAddClick,
-                containerColor = MaterialTheme.colorScheme.primary
+                onClick = onAddClick, containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(
                     imageVector = Icons.Default.Add, contentDescription = "添加密码"

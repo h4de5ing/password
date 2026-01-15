@@ -50,13 +50,11 @@ object ExportCrypto {
     fun decryptJsonWithPassword(compact: String, password: CharArray): String {
         require(password.isNotEmpty()) { "password is empty" }
 
-        val parts = compact.split(';')
-            .filter { it.isNotBlank() }
-            .associate { kv ->
-                val idx = kv.indexOf('=')
-                require(idx > 0) { "Bad format" }
-                kv.substring(0, idx) to kv.substring(idx + 1)
-            }
+        val parts = compact.split(';').filter { it.isNotBlank() }.associate { kv ->
+            val idx = kv.indexOf('=')
+            require(idx > 0) { "Bad format" }
+            kv.substring(0, idx) to kv.substring(idx + 1)
+        }
 
         val v = parts["v"]?.toIntOrNull() ?: error("Missing v")
         require(v == VERSION) { "Unsupported version: $v" }

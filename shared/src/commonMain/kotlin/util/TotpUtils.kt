@@ -1,6 +1,7 @@
 package com.password.shared.util
 
-import kotlin.math.floor
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 /**
  * TOTP/HOTP验证码生成工具 - Google Authenticator 兼容实现
@@ -214,8 +215,8 @@ object TotpUtils {
             }
 
             // 步骤2: 使用 HMAC-SHA1 生成哈希
-            val mac = javax.crypto.Mac.getInstance(HMAC_ALGORITHM)
-            val secretKey = javax.crypto.spec.SecretKeySpec(key, HMAC_ALGORITHM)
+            val mac = Mac.getInstance(HMAC_ALGORITHM)
+            val secretKey = SecretKeySpec(key, HMAC_ALGORITHM)
             mac.init(secretKey)
             val hash = mac.doFinal(counterBytes)
 
@@ -224,10 +225,8 @@ object TotpUtils {
             val offset = hash[hash.size - 1].toInt() and 0x0f
 
             // 从偏移量处取 4 个字节，第一个字节的最高位清零
-            val truncatedHash = ((hash[offset].toInt() and 0x7f) shl 24) or
-                    ((hash[offset + 1].toInt() and 0xff) shl 16) or
-                    ((hash[offset + 2].toInt() and 0xff) shl 8) or
-                    (hash[offset + 3].toInt() and 0xff)
+            val truncatedHash =
+                ((hash[offset].toInt() and 0x7f) shl 24) or ((hash[offset + 1].toInt() and 0xff) shl 16) or ((hash[offset + 2].toInt() and 0xff) shl 8) or (hash[offset + 3].toInt() and 0xff)
 
             // 步骤4: 提取最后 6 位数字（模 10^6）
             val otp = truncatedHash % 1000000
@@ -237,5 +236,5 @@ object TotpUtils {
         }
     }
 
-     fun getCurrentTimeMillis(): Long=System.currentTimeMillis()
+    fun getCurrentTimeMillis(): Long = System.currentTimeMillis()
 }

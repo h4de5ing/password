@@ -8,9 +8,7 @@ actual object DatabaseFactory {
     actual fun create(): AppDatabase {
         val dbFile = File("data", "data.db")
         dbFile.parentFile?.mkdirs()
-        return Room.databaseBuilder<AppDatabase>(name = dbFile.absolutePath)
-            .setDriver(BundledSQLiteDriver())
-            .fallbackToDestructiveMigration(dropAllTables = true)
-            .build()
+        return Room.databaseBuilder<AppDatabase>(name = dbFile.absolutePath).setDriver(BundledSQLiteDriver())
+            .fallbackToDestructiveMigration(dropAllTables = true).build()
     }
 }

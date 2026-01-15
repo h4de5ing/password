@@ -2,29 +2,15 @@ package com.password.shared.ui.screens
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import com.password.shared.db.PasswordItem
 import com.password.shared.db.RoomDao
+import com.password.shared.db.TestDataSeeder
 import com.password.shared.platform.rememberPlatformFileAccess
 import com.password.shared.security.ExportCrypto
 import com.password.shared.security.ImportExportService
-import com.password.shared.ui.components.AddPasswordDialog
-import com.password.shared.ui.components.AppSnackbarHost
-import com.password.shared.ui.components.LocalSnackController
-import com.password.shared.ui.components.PasswordPromptDialog
-import com.password.shared.ui.components.createSnackController
+import com.password.shared.ui.components.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,6 +36,7 @@ fun MainUI(dao: RoomDao) {
     }
 
     CompositionLocalProvider(LocalSnackController provides snack) {
+//        LaunchedEffect(Unit) { TestDataSeeder.seed(dao, perTypeCount = 3) }
         MainScreen(
             passwordListFlow = dao.observerPasswordItem(),
             snackbarHost = { AppSnackbarHost(hostState) },
@@ -58,31 +45,23 @@ fun MainUI(dao: RoomDao) {
                     Icon(imageVector = Icons.Default.MoreVert, contentDescription = "菜单")
                 }
                 DropdownMenu(
-                    expanded = showTopMenu,
-                    onDismissRequest = { showTopMenu = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("导出(加密)") },
-                        onClick = {
-                            showTopMenu = false
-                            showExportPwdDialog = true
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("导入(加密)") },
-                        onClick = {
-                            showTopMenu = false
-                            scope.launch {
-                                val text = fileAccess.importText()
-                                if (text.isNullOrBlank()) {
-                                    showMsg("导入已取消")
-                                } else {
-                                    pendingImportEncryptedText = text
-                                    showImportPwdDialog = true
-                                }
+                    expanded = showTopMenu, onDismissRequest = { showTopMenu = false }) {
+                    DropdownMenuItem(text = { Text("导出(加密)") }, onClick = {
+                        showTopMenu = false
+                        showExportPwdDialog = true
+                    })
+                    DropdownMenuItem(text = { Text("导入(加密)") }, onClick = {
+                        showTopMenu = false
+                        scope.launch {
+                            val text = fileAccess.importText()
+                            if (text.isNullOrBlank()) {
+                                showMsg("导入已取消")
+                            } else {
+                                pendingImportEncryptedText = text
+                                showImportPwdDialog = true
                             }
                         }
-                    )
+                    })
                 }
             },
             onAddClick = {
@@ -101,8 +80,7 @@ fun MainUI(dao: RoomDao) {
                     dao.delete(item)
                 }
                 showMsg("已删除")
-            }
-        )
+            })
 
         if (showAddDialog) {
             AddPasswordDialog(
@@ -167,53 +145,46 @@ fun MainUI(dao: RoomDao) {
                         }
 
                         val ok = fileAccess.exportText(
-                            suggestedFileName = "password_backup.p455w0rd",
-                            text = encrypted
+                            suggestedFileName = "password_backup.p455w0rd", text = encrypted
                         )
                         showMsg(if (ok) "导出成功" else "导出已取消")
                     }
-                }
-            )
+                })
         }
 
         if (showImportPwdDialog) {
-            PasswordPromptDialog(
-                title = "加密导入",
-                confirmText = "导入",
-                onDismiss = {
-                    showImportPwdDialog = false
-                    pendingImportEncryptedText = null
-                },
-                onConfirm = { pwd ->
-                    val encrypted = pendingImportEncryptedText
-                    showImportPwdDialog = false
-                    pendingImportEncryptedText = null
+            PasswordPromptDialog(title = "加密导入", confirmText = "导入", onDismiss = {
+                showImportPwdDialog = false
+                pendingImportEncryptedText = null
+            }, onConfirm = { pwd ->
+                val encrypted = pendingImportEncryptedText
+                showImportPwdDialog = false
+                pendingImportEncryptedText = null
 
-                    if (encrypted.isNullOrBlank()) {
-                        showMsg("导入失败：未选择文件")
-                        return@PasswordPromptDialog
+                if (encrypted.isNullOrBlank()) {
+                    showMsg("导入失败：未选择文件")
+                    return@PasswordPromptDialog
+                }
+
+                scope.launch {
+                    val json = runCatching {
+                        withContext(Dispatchers.Default) {
+                            ExportCrypto.decryptJsonWithPassword(encrypted, pwd.toCharArray())
+                        }
+                    }.getOrElse { e ->
+                        showMsg("导入失败：${e.message ?: e::class.simpleName}")
+                        return@launch
                     }
 
-                    scope.launch {
-                        val json = runCatching {
-                            withContext(Dispatchers.Default) {
-                                ExportCrypto.decryptJsonWithPassword(encrypted, pwd.toCharArray())
-                            }
-                        }.getOrElse { e ->
-                            showMsg("导入失败：${e.message ?: e::class.simpleName}")
-                            return@launch
-                        }
-
-                        runCatching {
-                            withContext(Dispatchers.IO) { ImportExportService.importJson(dao, json) }
-                        }.onSuccess {
-                            showMsg("导入成功")
-                        }.onFailure { e ->
-                            showMsg("导入失败：${e.message ?: e::class.simpleName}")
-                        }
+                    runCatching {
+                        withContext(Dispatchers.IO) { ImportExportService.importJson(dao, json) }
+                    }.onSuccess {
+                        showMsg("导入成功")
+                    }.onFailure { e ->
+                        showMsg("导入失败：${e.message ?: e::class.simpleName}")
                     }
                 }
-            )
+            })
         }
     }
 }

@@ -34,7 +34,7 @@ object ImportExportService {
                 account = e.account,
                 password = e.password,
                 memoInfo = e.memoInfo,
-                time = if (e.time == 0L) com.password.shared.util.getCurrentTimeInMillis() else e.time,
+                time = if (e.time == 0L) System.currentTimeMillis() else e.time,
                 dataJson = e.dataJson
             )
             dao.insert(item)

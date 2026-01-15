@@ -3,7 +3,6 @@ package com.password.shared.util
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
-// Time constants (milliseconds)
 private const val HOUR_MILLIS = 60 * 60 * 1000L
 private const val HALF_HOUR_MILLIS = HOUR_MILLIS / 2
 private const val DAY_MILLIS = 24 * HOUR_MILLIS
@@ -49,22 +48,6 @@ fun Long.getConciseTime(): String {
 }
 
 /**
- * 将时间戳转换为格式化的字符串
- */
-fun Long.formatTime(): String {
-    val instant = kotlinx.datetime.Instant.fromEpochMilliseconds(this)
-    val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-    return "${dateTime.year}.${dateTime.monthNumber.toString().padStart(2, '0')}.${
-        dateTime.dayOfMonth.toString().padStart(2, '0')
-    }    ${dateTime.hour.toString().padStart(2, '0')} : ${dateTime.minute.toString().padStart(2, '0')}"
-}
-
-/**
  * 获取当前时间戳（毫秒）
  */
 fun getCurrentTimeInMillis(): Long = System.currentTimeMillis()
-
-/**
- * 获取当前时间的字符串表示
- */
-fun getCurrentTimeString(): String = getCurrentTimeInMillis().formatTime()
