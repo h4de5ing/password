@@ -21,5 +21,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "password"
-//include(":app")
 include(":shared")

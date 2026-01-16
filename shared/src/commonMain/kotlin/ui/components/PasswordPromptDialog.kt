@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 fun PasswordPromptDialog(
     title: String,
     confirmText: String,
+    label: String = "导出/导入密码",
     onDismiss: () -> Unit,
     onConfirm: (password: String) -> Unit
 ) {
@@ -30,7 +31,7 @@ fun PasswordPromptDialog(
             OutlinedTextField(
                 value = pwd,
                 onValueChange = { pwd = it },
-                label = { Text("导出/导入密码") },
+                label = { Text(label) },
                 singleLine = true,
                 visualTransformation = if (showPwd) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {

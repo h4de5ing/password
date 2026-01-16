@@ -15,9 +15,7 @@ data class PasswordItem(
     var time: Long = System.currentTimeMillis(),
     var dataJson: String = "{}"
 ) {
-    fun getPasswordType(): PasswordType {
-        return PasswordType.fromId(type) ?: PasswordType.PASSWORD
-    }
+    fun getPasswordType(): PasswordType = PasswordType.fromId(type) ?: PasswordType.PASSWORD
 
     fun getDataMap(): Map<String, String> {
         return try {

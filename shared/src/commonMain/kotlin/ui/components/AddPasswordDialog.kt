@@ -44,6 +44,8 @@ import com.password.shared.db.PasswordType
 @Composable
 fun AddPasswordDialog(
     passwordItem: PasswordItem? = null,
+    initialDataMap: Map<String, String>? = null,
+    initialMemo: String? = null,
     onDismiss: () -> Unit,
     onConfirm: (type: Int, dataMap: Map<String, String>, memo: String) -> Unit,
 ) {
@@ -53,11 +55,13 @@ fun AddPasswordDialog(
     var formDataState by remember {
         mutableStateOf(
             if (passwordItem != null) {
-                val map = passwordItem.getDataMap().toMutableMap()
-                map["备注"] = passwordItem.memoInfo
-                map
+                val map = (initialDataMap ?: passwordItem.getDataMap()).toMutableMap()
+                map["备注"] = initialMemo ?: passwordItem.memoInfo
+                map.toMap()
             } else {
-                mapOf()
+                val map = (initialDataMap ?: emptyMap()).toMutableMap()
+                if (initialMemo != null) map["备注"] = initialMemo
+                map.toMap()
             }
         )
     }
@@ -94,7 +98,7 @@ fun AddPasswordDialog(
                                 onClick = {
                                     selectedType = type
                                     showTypeDropdown = false
-                                    formDataState = mapOf()
+                                    formDataState = emptyMap()
                                 }
                             )
                         }

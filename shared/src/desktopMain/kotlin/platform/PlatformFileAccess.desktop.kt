@@ -32,7 +32,7 @@ actual fun rememberPlatformFileAccess(): PlatformFileAccess {
 }
 
 private fun chooseOpenFile(): File? {
-    val dialog = FileDialog(null as Frame?, "导入(加密)", FileDialog.LOAD)
+    val dialog = FileDialog(null as Frame?, "导入", FileDialog.LOAD)
     dialog.isVisible = true
 
     val directory = dialog.directory ?: return null
@@ -41,7 +41,7 @@ private fun chooseOpenFile(): File? {
 }
 
 private fun chooseSaveFile(suggestedFileName: String): File? {
-    val dialog = FileDialog(null as Frame?, "导出(加密)", FileDialog.SAVE)
+    val dialog = FileDialog(null as Frame?, "导出", FileDialog.SAVE)
     dialog.file = suggestedFileName
     dialog.isVisible = true
 

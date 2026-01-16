@@ -46,11 +46,11 @@ fun MainUI(dao: RoomDao) {
                 }
                 DropdownMenu(
                     expanded = showTopMenu, onDismissRequest = { showTopMenu = false }) {
-                    DropdownMenuItem(text = { Text("导出(加密)") }, onClick = {
+                    DropdownMenuItem(text = { Text("导出") }, onClick = {
                         showTopMenu = false
                         showExportPwdDialog = true
                     })
-                    DropdownMenuItem(text = { Text("导入(加密)") }, onClick = {
+                    DropdownMenuItem(text = { Text("导入") }, onClick = {
                         showTopMenu = false
                         scope.launch {
                             val text = fileAccess.importText()
@@ -129,6 +129,7 @@ fun MainUI(dao: RoomDao) {
             PasswordPromptDialog(
                 title = "加密导出",
                 confirmText = "下一步",
+                label = "导出密码",
                 onDismiss = { showExportPwdDialog = false },
                 onConfirm = { pwd ->
                     showExportPwdDialog = false
@@ -153,7 +154,7 @@ fun MainUI(dao: RoomDao) {
         }
 
         if (showImportPwdDialog) {
-            PasswordPromptDialog(title = "加密导入", confirmText = "导入", onDismiss = {
+            PasswordPromptDialog(title = "加密导入", confirmText = "导入", label = "导入密码", onDismiss = {
                 showImportPwdDialog = false
                 pendingImportEncryptedText = null
             }, onConfirm = { pwd ->
