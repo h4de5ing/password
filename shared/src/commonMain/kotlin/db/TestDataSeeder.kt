@@ -74,20 +74,9 @@ object TestDataSeeder {
             }
         }
 
-        // account 字段用于列表快速识别/搜索（项目现有逻辑）
-        val account = when (type) {
-            PasswordType.PASSWORD -> dataMap["用户名"].orEmpty()
-            PasswordType.GOOGLE_AUTH -> dataMap["网站"].orEmpty()
-            PasswordType.MNEMONIC -> dataMap["word_1"].orEmpty()
-            PasswordType.BANK_CARD -> dataMap["卡号"].orEmpty()
-            PasswordType.ID_CARD -> dataMap["姓名"].orEmpty()
-        }
-
         return PasswordItem(
             id = 0,
             type = type.id,
-            account = account,
-            password = dataMap["密码"].orEmpty(),
             memoInfo = memo,
             dataJson = "{}"
         ).apply {

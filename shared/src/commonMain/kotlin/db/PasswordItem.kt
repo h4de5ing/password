@@ -9,8 +9,6 @@ import kotlinx.serialization.json.Json
 data class PasswordItem(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     var type: Int = 1,
-    var account: String = "",
-    var password: String = "",
     var memoInfo: String = "",
     var time: Long = System.currentTimeMillis(),
     var dataJson: String = "{}"

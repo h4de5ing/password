@@ -93,21 +93,13 @@ fun MainUI(dao: RoomDao) {
                     val isEditing = editingPasswordItem != null
                     val editingId = editingPasswordItem?.id ?: 0
 
-                    val account = when (type) {
-                        1 -> dataMap["用户名"] ?: ""
-                        2 -> dataMap["网站"] ?: ""
-                        3 -> dataMap["word_1"] ?: ""
-                        4 -> dataMap["卡号"] ?: ""
-                        5 -> dataMap["姓名"] ?: ""
-                        else -> ""
-                    }
+                    val time = editingPasswordItem?.time ?: System.currentTimeMillis()
 
                     val newItem = PasswordItem(
                         id = editingId,
                         type = type,
-                        account = account,
-                        password = dataMap["密码"] ?: "",
                         memoInfo = memo,
+                        time = time,
                         dataJson = "",
                     ).apply {
                         setDataMap(dataMap)
